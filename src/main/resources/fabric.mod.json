@@ -21,9 +21,12 @@
   "entrypoints": {
     "stationapi:event_bus": [
       "io.github.TannerLow.baiotechbees.events.init.InitListener",
-      "io.github.TannerLow.baiotechbees.events.BlockListener"
+      "io.github.TannerLow.baiotechbees.events.BlockListener",
+      "io.github.TannerLow.baiotechbees.events.ItemListener",
+      "io.github.TannerLow.baiotechbees.events.ColorListener"
     ],
     "stationapi:event_bus_client": [
+      "io.github.TannerLow.baiotechbees.events.TextureListener"
     ],
     "stationapi:event_bus_server": [
     ]

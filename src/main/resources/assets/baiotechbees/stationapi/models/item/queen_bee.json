@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "baiotechbees:item/queen.outline",
+    "layer1": "baiotechbees:item/body1",
+    "layer2": "baiotechbees:item/queen.body2"
+  }
+}

@@ -1,6 +1,7 @@
 package io.github.TannerLow.baiotechbees.guis.handlers;
 
 import io.github.TannerLow.baiotechbees.blocks.entities.ApiaryBlockEntity;
+import io.github.TannerLow.baiotechbees.guis.slots.OutputSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
@@ -13,17 +14,20 @@ public class ApiaryScreenHandler extends ScreenHandler {
     public ApiaryScreenHandler(PlayerInventory playerInventory, ApiaryBlockEntity apiaryBlockEntity) {
         this.apiaryBlockEntity = apiaryBlockEntity;
 
+        // inputs
         this.addSlot(new Slot(apiaryBlockEntity, 0, 29, 39));
         this.addSlot(new Slot(apiaryBlockEntity, 1, 29, 65));
 
-        this.addSlot(new Slot(apiaryBlockEntity, 2, 116, 52));
-        this.addSlot(new Slot(apiaryBlockEntity, 3, 95, 39));
-        this.addSlot(new Slot(apiaryBlockEntity, 4, 116, 26));
-        this.addSlot(new Slot(apiaryBlockEntity, 5, 137, 39));
-        this.addSlot(new Slot(apiaryBlockEntity, 6, 137, 65));
-        this.addSlot(new Slot(apiaryBlockEntity, 7, 116, 78));
-        this.addSlot(new Slot(apiaryBlockEntity, 8, 95, 65));
+        // outputs
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 2, 116, 52));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 3, 95, 39));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 4, 116, 26));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 5, 137, 39));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 6, 137, 65));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 7, 116, 78));
+        this.addSlot(new OutputSlot(apiaryBlockEntity, 8, 95, 65));
 
+        // frames
         this.addSlot(new Slot(apiaryBlockEntity, 9, 66, 23));
         this.addSlot(new Slot(apiaryBlockEntity, 10, 66, 52));
         this.addSlot(new Slot(apiaryBlockEntity, 11, 66, 81));

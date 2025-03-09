@@ -1,10 +1,12 @@
 package io.github.TannerLow.baiotechbees.blocks.entities;
 
+import net.minecraft.block.FurnaceBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 
 public class ApiaryBlockEntity extends BlockEntity implements Inventory {
     private ItemStack[] inventory = new ItemStack[12];
@@ -65,15 +67,39 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
-        String var2 = "ApiaryBlock";
-        if (var2 == null) {
-            throw new RuntimeException(this.getClass() + " is missing a mapping! This is a bug!");
-        } else {
-            nbt.putString("id", var2);
-            nbt.putInt("x", this.x);
-            nbt.putInt("y", this.y);
-            nbt.putInt("z", this.z);
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+        NbtList itemsNbt = nbt.getList("Items");
+        this.inventory = new ItemStack[this.size()];
+
+        for (int i = 0; i < itemsNbt.size(); i++) {
+            NbtCompound var4 = (NbtCompound)itemsNbt.get(i);
+            byte var5 = var4.getByte("Slot");
+            if (var5 >= 0 && var5 < this.inventory.length) {
+                this.inventory[var5] = new ItemStack(var4);
+            }
         }
+    }
+
+    @Override
+    public void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
+        NbtList slotsNbt = new NbtList();
+
+        for (int i = 0; i < this.inventory.length; i++) {
+            if (this.inventory[i] != null) {
+                NbtCompound slotNbt = new NbtCompound();
+                slotNbt.putByte("Slot", (byte)i);
+                this.inventory[i].writeNbt(slotNbt);
+                slotsNbt.add(slotNbt);
+            }
+        }
+
+        nbt.put("Items", slotsNbt);
+    }
+
+    @Override
+    public void tick() {
+
     }
 }

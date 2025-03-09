@@ -1,2 +1,11 @@
 # @ is a shorthand for the current mod id, which is baiotechbees. E.g: tile.@.redclay.name
 tile.@.apiary_block.name=Apiary
+item.@.drone_bee.name=Drone Bee
+item.@.princess_bee.name=Princess Bee
+item.@.queen_bee.name=Queen Bee
+item.@.drone_bee.forest.name=Forest Drone
+item.@.princess_bee.forest.name=Forest Princess
+item.@.queen_bee.forest.name=Forest Queen
+item.@.drone_bee.meadows.name=Meadows Drone
+item.@.princess_bee.meadows.name=Meadows Princess
+item.@.queen_bee.meadows.name=Meadows Queen
