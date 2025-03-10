@@ -1,5 +1,9 @@
 package io.github.TannerLow.baiotechbees.blocks.entities;
 
+import io.github.TannerLow.baiotechbees.events.ItemListener;
+import io.github.TannerLow.baiotechbees.items.BeeItem;
+import io.github.TannerLow.baiotechbees.items.QueenBeeItem;
+import lombok.NonNull;
 import net.minecraft.block.FurnaceBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,6 +14,8 @@ import net.minecraft.nbt.NbtList;
 
 public class ApiaryBlockEntity extends BlockEntity implements Inventory {
     private ItemStack[] inventory = new ItemStack[12];
+    public int breedTime = 0;
+    public int maxBreedTime = 0;
 
     @Override
     public int size() {
@@ -100,6 +106,62 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
 
     @Override
     public void tick() {
+        // Check if nothing to do
+        if(inventory[0] == null) {
+            breedTime = 0;
+            maxBreedTime = 0;
+            return;
+        }
 
+        // Handle Queen
+        if(inventory[0].getItem() instanceof QueenBeeItem) {
+            NbtCompound nbt = inventory[0].getStationNbt();
+            breedTime = nbt.getInt("BreedTime");
+            // Still breeding
+            if(breedTime > 0) {
+                breedTime--;
+                nbt.putInt("BreedTime", breedTime);
+            }
+            // Done breeding
+            else {
+                int emptySlot = findEmptyOutputSlot();
+                if(emptySlot != -1) {
+                    inventory[emptySlot] = ItemListener.QUEEN_BEE.createOffspring(inventory[0]).get(0);
+                    inventory[0] = null;
+                    markDirty();
+                }
+            }
+            return;
+        }
+
+        // Handle Princess + Drone
+        if(hasPrincess() && hasDrone()) {
+            ItemStack queenStack = ItemListener.QUEEN_BEE.fromMating(inventory[0], inventory[1]);
+            maxBreedTime = queenStack.getStationNbt().getInt("MaxBreedTime");
+            queenStack.getStationNbt().putInt("BreedTime", maxBreedTime);
+            inventory[0] = queenStack;
+            inventory[1].count--;
+            if(inventory[1].count <= 0) {
+                inventory[1] = null;
+            }
+            markDirty();
+        }
+    }
+
+    public int findEmptyOutputSlot() {
+        for(int i = 2; i <= 8; i++) {
+            if(inventory[i] == null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean hasPrincess() {
+        return (inventory[0] != null && ((BeeItem)inventory[0].getItem()).isPrincess);
+    }
+
+    public boolean hasDrone() {
+        return (inventory[1] != null && !((BeeItem)inventory[1].getItem()).isPrincess);
     }
 }

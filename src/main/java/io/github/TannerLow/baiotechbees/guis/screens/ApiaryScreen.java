@@ -29,6 +29,12 @@ public class ApiaryScreen extends HandledScreen {
         int x = (this.width - this.backgroundWidth) / 2;
         int y = (this.height - this.backgroundHeight) / 2;
         this.drawTexture(x, y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+
+        if(apiaryBlockEntity.maxBreedTime > 0) {
+            int height = apiaryBlockEntity.breedTime * 46 / apiaryBlockEntity.maxBreedTime;
+            this.drawTexture(x + 20, y + 37, 192, 0, 4, height);
+        }
+
 //        if (this.furnaceBlockEntity.isBurning()) {
 //            int var5 = this.furnaceBlockEntity.getFuelTimeDelta(12);
 //            this.drawTexture(var3 + 56, var4 + 36 + 12 - var5, 176, 12 - var5, 14, var5 + 2);

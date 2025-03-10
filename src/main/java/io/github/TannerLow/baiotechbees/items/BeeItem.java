@@ -14,13 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeeItem extends TemplateItem {
+    public final boolean isPrincess;
+
     public static String[] names = {
         "forest", "meadows"
     };
 
+//    public static Map idToString = new HashMap();
+//    public static Map stringToId = new HashMap();
+
     public BeeItem(Identifier identifier) {
         super(identifier);
+        this.isPrincess = false;
         setHasSubtypes(true);
+    }
+
+    public BeeItem(Identifier identifier, boolean isPrincess) {
+        super(identifier);
+        this.isPrincess = isPrincess;
+        setHasSubtypes(true);
+        if(isPrincess) {
+            setMaxCount(1);
+        }
     }
 
     @SubItemProvider
@@ -30,26 +45,19 @@ public class BeeItem extends TemplateItem {
         list.add(createBee(0));
         list.add(createBee(1));
 
-        ItemStack bee = new ItemStack(this);
-        NbtCompound nbt = bee.getStationNbt();
-        nbt.putShort("test", (short)5);
-        list.add(bee);
-
-        ItemStack bee2 = new ItemStack(this);
-        NbtCompound nbt1 = bee2.getStationNbt();
-        nbt1.putShort("test2", (short)6);
-        nbt1.putShort("test2", (short)6);
-        list.add(bee2);
-
         return list;
     }
 
     public ItemStack createBee(int beeId) {
         ItemStack bee = new ItemStack(this, 1, beeId);
-//        NbtCompound nbt = bee.getStationNbt();
-//        nbt.putShort("BeeID", (short)1);
-//        bee.writeNbt(nbt.copy());
+        addNbtTags(bee);
         return bee;
+    }
+
+    public void addNbtTags(ItemStack bee) {
+        NbtCompound nbt = bee.getStationNbt();
+        nbt.putShort("Breed1", (short)bee.getDamage());
+        nbt.putShort("Breed2", (short)bee.getDamage());
     }
 
     @Environment(EnvType.CLIENT)
@@ -59,10 +67,12 @@ public class BeeItem extends TemplateItem {
     }
 
     @Override
-    public boolean useOnBlock(ItemStack stack, PlayerEntity user, World world, int x, int y, int z, int side) {
-        System.out.print(stack.getStationNbt().contains("test"));
-        System.out.print(stack.getStationNbt().contains("test2"));
-        System.out.println();
-        return true;
+    public ItemStack use(ItemStack stack, World world, PlayerEntity user) {
+        if(stack.getStationNbt().contains("Breed1") && stack.getStationNbt().contains("Breed2")) {
+            user.sendMessage("Breed #1: " + names[stack.getStationNbt().getShort("Breed1")]);
+            user.sendMessage("Breed #2: " + names[stack.getStationNbt().getShort("Breed2")]);
+        }
+        return super.use(stack, world, user);
     }
+
 }
