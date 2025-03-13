@@ -3,8 +3,6 @@ package io.github.TannerLow.baiotechbees.blocks.entities;
 import io.github.TannerLow.baiotechbees.events.ItemListener;
 import io.github.TannerLow.baiotechbees.items.BeeItem;
 import io.github.TannerLow.baiotechbees.items.QueenBeeItem;
-import lombok.NonNull;
-import net.minecraft.block.FurnaceBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -12,10 +10,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class ApiaryBlockEntity extends BlockEntity implements Inventory {
     private ItemStack[] inventory = new ItemStack[12];
     public int breedTime = 0;
     public int maxBreedTime = 0;
+    public Queue<ItemStack> outputBuffer = new LinkedList();
 
     @Override
     public int size() {
@@ -50,8 +52,13 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
     @Override
     public void setStack(int slot, ItemStack stack) {
         this.inventory[slot] = stack;
-        if (stack != null && stack.count > this.getMaxCountPerStack()) {
-            stack.count = this.getMaxCountPerStack();
+        if (stack != null) {
+            if(stack.count > this.getMaxCountPerStack()) {
+                stack.count = this.getMaxCountPerStack();
+            }
+            if(slot == 0 && inventory[0].getItem() instanceof QueenBeeItem) {
+                maxBreedTime = stack.getStationNbt().getInt("MaxBreedTime");
+            }
         }
     }
 
@@ -106,6 +113,22 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
 
     @Override
     public void tick() {
+        // try to clear buffer
+        if(!outputBuffer.isEmpty()) {
+            ItemStack stack = outputBuffer.peek();
+            int slot = findItemInOutputSlot(stack);
+            if(slot != -1 && inventory[slot].count < inventory[slot].getMaxCount()) {
+                inventory[slot].count++;
+                outputBuffer.remove();
+                return;
+            }
+            slot = findEmptyOutputSlot(stack);
+            if(slot != -1) {
+                inventory[slot] = outputBuffer.remove();
+            }
+            return;
+        }
+
         // Check if nothing to do
         if(inventory[0] == null) {
             breedTime = 0;
@@ -124,12 +147,11 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
             }
             // Done breeding
             else {
-                int emptySlot = findEmptyOutputSlot();
-                if(emptySlot != -1) {
-                    inventory[emptySlot] = ItemListener.QUEEN_BEE.createOffspring(inventory[0]).get(0);
-                    inventory[0] = null;
-                    markDirty();
-                }
+                outputBuffer.addAll(ItemListener.QUEEN_BEE.createOffspring(inventory[0]));
+                inventory[0] = null;
+                breedTime = 0;
+                maxBreedTime = 0;
+                markDirty();
             }
             return;
         }
@@ -148,7 +170,18 @@ public class ApiaryBlockEntity extends BlockEntity implements Inventory {
         }
     }
 
-    public int findEmptyOutputSlot() {
+    public int findItemInOutputSlot(ItemStack stack) {
+        // find if item already present
+        for(int i = 2; i <= 8; i++) {
+            if(inventory[i] != null && stack.isItemEqual(inventory[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int findEmptyOutputSlot(ItemStack stack) {
+        // else find an open slot
         for(int i = 2; i <= 8; i++) {
             if(inventory[i] == null) {
                 return i;

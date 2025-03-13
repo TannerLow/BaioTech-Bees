@@ -32,7 +32,8 @@ public class ApiaryScreen extends HandledScreen {
 
         if(apiaryBlockEntity.maxBreedTime > 0) {
             int height = apiaryBlockEntity.breedTime * 46 / apiaryBlockEntity.maxBreedTime;
-            this.drawTexture(x + 20, y + 37, 192, 0, 4, height);
+            float ratio = (float)apiaryBlockEntity.breedTime / apiaryBlockEntity.maxBreedTime;
+            this.drawTexture(x + 20, y + 37 + (46 - height), 176 + 4 * (int)(5*ratio), 0 + (46 - height), 4, height);
         }
 
 //        if (this.furnaceBlockEntity.isBurning()) {

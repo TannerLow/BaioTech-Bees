@@ -1,9 +1,12 @@
 package io.github.TannerLow.baiotechbees.items;
 
 import io.github.TannerLow.baiotechbees.events.ItemListener;
+import io.github.TannerLow.baiotechbees.items.util.Gene;
+import io.github.TannerLow.baiotechbees.items.util.Genome;
 import lombok.NonNull;
 import net.glasslauncher.mods.alwaysmoreitems.api.SubItemProvider;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
@@ -11,8 +14,10 @@ import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 
 public class QueenBeeItem extends BeeItem {
@@ -29,81 +34,90 @@ public class QueenBeeItem extends BeeItem {
 
         list.add(createBee(0));
         list.add(createBee(1));
+        list.add(createBee(2));
 
         return list;
     }
 
     @Override
     public void addNbtTags(ItemStack bee) {
-        NbtCompound nbt = bee.getStationNbt();
-        nbt.putInt("BreedTime", 100);
-        nbt.putInt("MaxBreedTime", 100);
-        nbt.putShort("PrincessBreed1", (short)bee.getDamage());
-        nbt.putShort("PrincessBreed2", (short)bee.getDamage());
-        nbt.putShort("DroneBreed1", (short)bee.getDamage());
-        nbt.putShort("DroneBreed2", (short)bee.getDamage());
+        Short beeBreedId = (short)bee.getDamage();
+
+        ItemStack drone = ItemListener.DRONE_BEE.createBee(beeBreedId);
+        ItemStack princess = ItemListener.PRINCESS_BEE.createBee(beeBreedId);
+        ItemStack queen = fromMating(princess, drone);
+
+        bee.writeNbt(queen.getStationNbt());
     }
 
     @Override
     public ItemStack use(ItemStack stack, World world, PlayerEntity user) {
         user.sendMessage("BreedTime: " + stack.getStationNbt().getInt("BreedTime"));
         user.sendMessage("MaxBreedTime: " + stack.getStationNbt().getInt("MaxBreedTime"));
-        user.sendMessage("Princess Breed #1: " + stack.getStationNbt().getShort("PrincessBreed1"));
-        user.sendMessage("Princess Breed #2: " + stack.getStationNbt().getShort("PrincessBreed2"));
-        user.sendMessage("Drone Breed #1: " + stack.getStationNbt().getShort("DroneBreed1"));
-        user.sendMessage("Drone Breed #2: " + stack.getStationNbt().getShort("DroneBreed2"));
-        return super.use(stack, world, user);
+        System.out.println("--- Princess Genome ---");
+        Genome.print(stack.getStationNbt().getCompound("PrincessGenome"));
+        System.out.println("--- Drone Genome ---");
+        Genome.print(stack.getStationNbt().getCompound("DroneGenome"));
+        return stack;
     }
 
     public ItemStack fromMating(@NonNull ItemStack princessStack, @NonNull ItemStack droneStack) {
-        NbtCompound princessNbt = princessStack.getStationNbt();
-        NbtCompound droneNbt = droneStack.getStationNbt();
+        Genome princessGenome = new Genome();
+        Genome droneGenome = new Genome();
+        princessGenome.readNbt(princessStack.getStationNbt());
+        droneGenome.readNbt(droneStack.getStationNbt());
 
-        short princessBreed1 = princessNbt.getShort("Breed1");
-        short princessBreed2 = princessNbt.getShort("Breed2");
-        short droneBreed1 = droneNbt.getShort("Breed1");
-        short droneBreed2 = droneNbt.getShort("Breed2");
+        if(princessGenome.genes.size() != droneGenome.genes.size()) {
+            return null;
+        }
 
-        ItemStack queenStack = createBee(0);
-        NbtCompound queenNbt = queenStack.getStationNbt();
-        queenNbt.putShort("PrincessBreed1", princessBreed1);
-        queenNbt.putShort("PrincessBreed2", princessBreed2);
-        queenNbt.putShort("DroneBreed1", droneBreed1);
-        queenNbt.putShort("DroneBreed2", droneBreed2);
-        queenStack.setDamage(princessStack.getDamage());
+        ItemStack queenStack = new ItemStack(ItemListener.QUEEN_BEE, 1, princessStack.getDamage());
+
+        NbtCompound nbt = queenStack.getStationNbt();
+
+        NbtCompound princessGenomeNbt = new NbtCompound();
+        princessGenome.writeNbt(princessGenomeNbt);
+        nbt.put("PrincessGenome", princessGenomeNbt);
+
+        NbtCompound droneGenomeNbt = new NbtCompound();
+        droneGenome.writeNbt(droneGenomeNbt);
+        nbt.put("DroneGenome", droneGenomeNbt);
+
+        nbt.putInt("BreedTime", 200);
+        nbt.putInt("MaxBreedTime", 200);
 
         return queenStack;
     }
 
-    public static List<ItemStack> createOffspring(ItemStack queen) {
-        List offspring = new ArrayList<ItemStack>();
+    public static Queue<ItemStack> createOffspring(ItemStack queen) {
+        Queue offspring = new LinkedList<ItemStack>();
 
+        Genome parentPrincessGenome = new Genome();
+        parentPrincessGenome.readNbt(queen.getStationNbt().getCompound("PrincessGenome"));
+        Genome parentDroneGenome = new Genome();
+        parentDroneGenome.readNbt(queen.getStationNbt().getCompound("DroneGenome"));
+
+        // Create princess
         ItemStack princess = new ItemStack(ItemListener.PRINCESS_BEE);
-        Map breeds = getOffspringBreed(queen);
-        NbtCompound princessNbt = princess.getStationNbt();
-        short breed1 = (short)breeds.get("Breed1");
-        princessNbt.putShort("Breed1", breed1);
-        princessNbt.putShort("Breed2", (short)breeds.get("Breed2"));
-        princess.setDamage(breed1);
+        Genome newPrincessGenome = Genome.crossGenomes(parentPrincessGenome, parentDroneGenome);
+        newPrincessGenome.writeNbt(princess.getStationNbt());
+        //Genome.print(princess.getStationNbt());
+        princess.setDamage((short)newPrincessGenome.getGene("Breed").value1);
         offspring.add(princess);
 
+        // Create drones
+        Gene fertilityGene = parentPrincessGenome.getGene("Fertility");
+        byte offspringCount = RNG.nextBoolean() ? (byte)fertilityGene.value1 : (byte)fertilityGene.value2;
+
+        for(int i = 0; i < offspringCount; i++) {
+            ItemStack drone = new ItemStack(ItemListener.DRONE_BEE);
+            Genome newDroneGenome = Genome.crossGenomes(parentPrincessGenome, parentDroneGenome);
+            newDroneGenome.writeNbt(drone.getStationNbt());
+            //Genome.print(drone.getStationNbt());
+            drone.setDamage((short)newDroneGenome.getGene("Breed").value1);
+            offspring.add(drone);
+        }
+
         return offspring;
-    }
-
-    public static Map getOffspringBreed(ItemStack queen) {
-        boolean fromPrincess = RNG.nextBoolean();
-        boolean fromDrone = RNG.nextBoolean();
-
-        NbtCompound nbt = queen.getStationNbt();
-        short princessBreed1 = nbt.getShort("PrincessBreed1");
-        short princessBreed2 = nbt.getShort("PrincessBreed2");
-        short droneBreed1 = nbt.getShort("DroneBreed1");
-        short droneBreed2 = nbt.getShort("DroneBreed2");
-
-        Map result = new HashMap<String, Short>();
-        result.put("Breed1", fromPrincess? princessBreed1 : princessBreed2);
-        result.put("Breed2", fromDrone ? droneBreed1 : droneBreed2);
-
-        return result;
     }
 }
