@@ -3,20 +3,19 @@ package io.github.TannerLow.baiotechbees.items;
 import io.github.TannerLow.baiotechbees.events.ItemListener;
 import io.github.TannerLow.baiotechbees.items.util.Gene;
 import io.github.TannerLow.baiotechbees.items.util.Genome;
+import io.github.TannerLow.baiotechbees.items.util.Mutation;
+import io.github.TannerLow.baiotechbees.items.util.MutationTable;
 import lombok.NonNull;
 import net.glasslauncher.mods.alwaysmoreitems.api.SubItemProvider;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 
@@ -89,8 +88,46 @@ public class QueenBeeItem extends BeeItem {
         return queenStack;
     }
 
+    public static ItemStack attemptMutations(ItemStack bee) {
+        Genome genome = new Genome();
+        genome.readNbt(bee.getStationNbt());
+        Gene breedGene = genome.getGene("Breed");
+        List<Integer> mutationIndeces = MutationTable.getPossibleMutations((short)breedGene.value1, (short)breedGene.value2);
+
+        for(Integer i : mutationIndeces) {
+            Mutation mutation = MutationTable.mutations.get(i);
+            boolean mutationOccured = false;
+
+            // attempt to mutate first allele
+            if(mutation.shouldOccur(RNG.nextInt(100))) {
+                Genome mutationGenome = BASE_GENOMES.get(mutation.mutationBreed);
+                for(Gene gene : genome.genes) {
+                    gene.value1 = mutationGenome.getGene(gene.name).value1;
+                }
+                bee.setDamage((short)genome.getGene("Breed").value1);
+                mutationOccured = true;
+            }
+
+            // attempt to mutate second allele
+            if(mutation.shouldOccur(RNG.nextInt(100))) {
+                Genome mutationGenome = BASE_GENOMES.get(mutation.mutationBreed);
+                for(Gene gene : genome.genes) {
+                    gene.value2 = mutationGenome.getGene(gene.name).value2;
+                }
+                mutationOccured = true;
+            }
+
+            if(mutationOccured) {
+                genome.writeNbt(bee.getStationNbt());
+                break;
+            }
+        }
+
+        return bee;
+    }
+
     public static Queue<ItemStack> createOffspring(ItemStack queen) {
-        Queue offspring = new LinkedList<ItemStack>();
+        Queue<ItemStack> offspring = new LinkedList<ItemStack>();
 
         Genome parentPrincessGenome = new Genome();
         parentPrincessGenome.readNbt(queen.getStationNbt().getCompound("PrincessGenome"));
@@ -101,7 +138,6 @@ public class QueenBeeItem extends BeeItem {
         ItemStack princess = new ItemStack(ItemListener.PRINCESS_BEE);
         Genome newPrincessGenome = Genome.crossGenomes(parentPrincessGenome, parentDroneGenome);
         newPrincessGenome.writeNbt(princess.getStationNbt());
-        //Genome.print(princess.getStationNbt());
         princess.setDamage((short)newPrincessGenome.getGene("Breed").value1);
         offspring.add(princess);
 
@@ -113,11 +149,22 @@ public class QueenBeeItem extends BeeItem {
             ItemStack drone = new ItemStack(ItemListener.DRONE_BEE);
             Genome newDroneGenome = Genome.crossGenomes(parentPrincessGenome, parentDroneGenome);
             newDroneGenome.writeNbt(drone.getStationNbt());
-            //Genome.print(drone.getStationNbt());
             drone.setDamage((short)newDroneGenome.getGene("Breed").value1);
             offspring.add(drone);
         }
 
+        for(ItemStack bee : offspring.stream().toList()) {
+            attemptMutations(bee);
+        }
+
         return offspring;
+    }
+
+    @Override
+    public String[] getTooltip(ItemStack stack, String originalTooltip) {
+        Genome genome = new Genome();
+        genome.readNbt(stack.getStationNbt().getCompound("PrincessGenome"));
+        Gene breeds = genome.getGene("Breed");
+        return new String[]{originalTooltip, "\u00A77" + names.get((short)breeds.value1) + "-" + names.get((short)breeds.value2)};
     }
 }

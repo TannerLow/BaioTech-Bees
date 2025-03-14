@@ -3,9 +3,15 @@ tile.@.apiary_block.name=Apiary
 item.@.drone_bee.name=Drone Bee
 item.@.princess_bee.name=Princess Bee
 item.@.queen_bee.name=Queen Bee
-item.@.drone_bee.forest.name=Forest Drone
-item.@.princess_bee.forest.name=Forest Princess
-item.@.queen_bee.forest.name=Forest Queen
-item.@.drone_bee.meadows.name=Meadows Drone
-item.@.princess_bee.meadows.name=Meadows Princess
-item.@.queen_bee.meadows.name=Meadows Queen
+
+item.@.drone_bee.Forest.name=Forest Drone
+item.@.princess_bee.Forest.name=Forest Princess
+item.@.queen_bee.Forest.name=Forest Queen
+
+item.@.drone_bee.Meadows.name=Meadows Drone
+item.@.princess_bee.Meadows.name=Meadows Princess
+item.@.queen_bee.Meadows.name=Meadows Queen
+
+item.@.drone_bee.Common.name=Common Drone
+item.@.princess_bee.Common.name=Common Princess
+item.@.queen_bee.Common.name=Common Queen

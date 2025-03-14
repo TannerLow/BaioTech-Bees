@@ -10,5 +10,5 @@ public class BeeColors {
     public static final int BASIC_BODY2 = 0xFFFFFF;
     public static final int FOREST_OUTLINE = 0x19CFEB;
     public static final int MEADOWS_OUTLINE = 0xEF131E;
-    //BakedModelRendererImpl
+    public static final int COMMON_OUTLINE = 0xB1B1B1;
 }

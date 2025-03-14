@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+import net.modificationstation.stationapi.api.client.item.CustomTooltipProvider;
 import net.modificationstation.stationapi.api.template.item.TemplateItem;
 import net.modificationstation.stationapi.api.util.Identifier;
 
@@ -17,13 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BeeItem extends TemplateItem {
+public class BeeItem extends TemplateItem implements CustomTooltipProvider {
     public final boolean isPrincess;
 
-    public static String[] names = {
-        "forest", "meadows", "common"
-    };
-    public static final Map<Integer, Genome> BASE_GENOMES = new HashMap();
+    public static List<String> names = new ArrayList();
+    public static Map<String, Short> breedIds = new HashMap();
+    public static final Map<Short, Genome> BASE_GENOMES = new HashMap();
 
     public BeeItem(Identifier identifier) {
         super(identifier);
@@ -62,7 +62,7 @@ public class BeeItem extends TemplateItem {
 
         Short beeBreedId = (short)bee.getDamage();
         System.out.println("copy of genom for bee id: " + beeBreedId);
-        Genome genome = BASE_GENOMES.get(beeBreedId.intValue());
+        Genome genome = BASE_GENOMES.get(beeBreedId);
         genome = genome.copy();
 
         genome.writeNbt(nbt);
@@ -71,7 +71,7 @@ public class BeeItem extends TemplateItem {
     @Environment(EnvType.CLIENT)
     @Override
     public String getTranslationKey(ItemStack stack) {
-        return super.getTranslationKey() + "." + names[stack.getDamage()];
+        return super.getTranslationKey() + "." + names.get(stack.getDamage());
     }
 
     @Override
@@ -87,9 +87,26 @@ public class BeeItem extends TemplateItem {
         return genome;
     }
 
+    public static void registerBreed(String breedName, short breedId) {
+        names.add(breedName);
+        breedIds.put(breedName, breedId);
+    }
+
     static {
-        BASE_GENOMES.put(0, createGenome((short) 0, (byte) 2));
-        BASE_GENOMES.put(1, createGenome((short) 1, (byte) 2));
-        BASE_GENOMES.put(2, createGenome((short) 2, (byte) 2));
+        BASE_GENOMES.put((short)0, createGenome((short) 0, (byte) 2));
+        BASE_GENOMES.put((short)1, createGenome((short) 1, (byte) 2));
+        BASE_GENOMES.put((short)2, createGenome((short) 2, (byte) 2));
+
+        registerBreed("Forest", (short)0);
+        registerBreed("Meadows", (short)1);
+        registerBreed("Common", (short)2);
+    }
+
+    @Override
+    public String[] getTooltip(ItemStack stack, String originalTooltip) {
+        Genome genome = new Genome();
+        genome.readNbt(stack.getStationNbt());
+        Gene breeds = genome.getGene("Breed");
+        return new String[]{originalTooltip, names.get((short)breeds.value1) + "-" + names.get((short)breeds.value2)};
     }
 }

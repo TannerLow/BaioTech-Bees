@@ -6,13 +6,11 @@ import net.modificationstation.stationapi.api.client.color.item.ItemColorProvide
 
 public class BeeColorProvider implements ItemColorProvider {
     public static final int WHITE = 0xFFFFFF;
-    //public final int OUTLINE;
     public final int BODY1;
     public final int BODY2;
 
     public BeeColorProvider(int body1, int body2) {
         super();
-        //this.OUTLINE = outline;
         this.BODY1 = body1;
         this.BODY2 = body2;
     }
@@ -27,6 +25,7 @@ public class BeeColorProvider implements ItemColorProvider {
                 switch(id){
                     case 0: return BeeColors.FOREST_OUTLINE;
                     case 1: return BeeColors.MEADOWS_OUTLINE;
+                    case 2: return BeeColors.COMMON_OUTLINE;
                 }
             }
         } else if (index == 1) {
