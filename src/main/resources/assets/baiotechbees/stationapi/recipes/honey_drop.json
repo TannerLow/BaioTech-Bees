@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "baiotechbees:honey_comb"
+    }
+  ],
+  "result": {
+    "item": "baiotechbees:honey_drop"
+  }
+}

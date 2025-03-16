@@ -2,6 +2,8 @@ package io.github.TannerLow.baiotechbees.items.util;
 
 import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtDouble;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtShort;
 import net.minecraft.nbt.NbtString;
@@ -12,7 +14,9 @@ public class Gene {
     public enum Type {
         STRING,
         SHORT,
-        BYTE
+        BYTE,
+        INT,
+        DOUBLE
     }
 
     public String name;
@@ -48,6 +52,14 @@ public class Gene {
             genePair.add(new NbtByte((byte)value1));
             genePair.add(new NbtByte((byte)value2));
         }
+        else if(type == Type.INT) {
+            genePair.add(new NbtInt((int)value1));
+            genePair.add(new NbtInt((int)value2));
+        }
+        else if(type == Type.DOUBLE) {
+            genePair.add(new NbtDouble((double)value1));
+            genePair.add(new NbtDouble((double)value2));
+        }
 
         nbt.put("GenePair", genePair);
     }
@@ -69,25 +81,35 @@ public class Gene {
             value1 = ((NbtByte)list.get(0)).value;
             value2 = ((NbtByte)list.get(1)).value;
         }
+        else if(type == Type.INT) {
+            value1 = ((NbtInt)list.get(0)).value;
+            value2 = ((NbtInt)list.get(1)).value;
+        }
+        else if(type == Type.DOUBLE) {
+            value1 = ((NbtDouble)list.get(0)).value;
+            value2 = ((NbtDouble)list.get(1)).value;
+        }
     }
 
     public Gene copy() {
         return new Gene(name, type, value1, value2);
     }
 
-    public Object getAlele(final Random rng) {
-        return rng.nextBoolean() ? value1 : value2;
-    }
+//    public Object getAlele(final Random rng) {
+//        return rng.nextBoolean() ? value1 : value2;
+//    }
 
-    public Gene rename(String newName) {
-        return new Gene(newName, type, value1, value2);
-    }
+//    public Gene rename(String newName) {
+//        return new Gene(newName, type, value1, value2);
+//    }
 
     public static byte serializeType(Type type) {
         switch(type) {
             case STRING: return 1;
             case SHORT: return 2;
             case BYTE: return 3;
+            case INT: return 4;
+            case DOUBLE: return 5;
             default: return 0;
         }
     }
@@ -97,6 +119,8 @@ public class Gene {
             case 1: return Type.STRING;
             case 2: return Type.SHORT;
             case 3: return Type.BYTE;
+            case 4: return Type.INT;
+            case 5: return Type.DOUBLE;
             default: throw new RuntimeException("Invalid NBT value for Type encountered during deserialization of Gene");
         }
     }

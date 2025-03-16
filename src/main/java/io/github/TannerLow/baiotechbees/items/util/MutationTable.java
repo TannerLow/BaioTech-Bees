@@ -30,5 +30,11 @@ public class MutationTable {
 
     static {
         addMutation("Forest", "Meadows", "Common", 15);
+        addMutation("Common", "Forest", "Cultivated", 12);
+        addMutation("Common", "Meadows", "Cultivated", 12);
+        addMutation("Cultivated", "Common", "Noble", 10);
+        addMutation("Cultivated", "Common", "Diligent", 10);
+        addMutation("Noble", "Cultivated", "Majestic", 8);
+        addMutation("Diligent", "Cultivated", "Unweary", 8);
     }
 }

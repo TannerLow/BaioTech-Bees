@@ -1,6 +1,7 @@
 package io.github.TannerLow.baiotechbees.items;
 
 import io.github.TannerLow.baiotechbees.events.ItemListener;
+import io.github.TannerLow.baiotechbees.items.util.Breed;
 import io.github.TannerLow.baiotechbees.items.util.Gene;
 import io.github.TannerLow.baiotechbees.items.util.Genome;
 import io.github.TannerLow.baiotechbees.items.util.Mutation;
@@ -20,6 +21,7 @@ import java.util.Queue;
 import java.util.Random;
 
 public class QueenBeeItem extends BeeItem {
+    public static final int TICKS_IN_BEE_TICK = 550;
     public static final Random RNG = new Random();
 
     public QueenBeeItem(Identifier identifier) {
@@ -31,9 +33,14 @@ public class QueenBeeItem extends BeeItem {
     public List<ItemStack> getSubItems() {
         ArrayList<ItemStack> list = new ArrayList<>();
 
-        list.add(createBee(0));
-        list.add(createBee(1));
-        list.add(createBee(2));
+        list.add(createBee(Breed.Forest.id()));
+        list.add(createBee(Breed.Meadows.id()));
+        list.add(createBee(Breed.Common.id()));
+        list.add(createBee(Breed.Cultivated.id()));
+        list.add(createBee(Breed.Noble.id()));
+        list.add(createBee(Breed.Majestic.id()));
+        list.add(createBee(Breed.Diligent.id()));
+        list.add(createBee(Breed.Unweary.id()));
 
         return list;
     }
@@ -46,13 +53,22 @@ public class QueenBeeItem extends BeeItem {
         ItemStack princess = ItemListener.PRINCESS_BEE.createBee(beeBreedId);
         ItemStack queen = fromMating(princess, drone);
 
-        bee.writeNbt(queen.getStationNbt());
+        NbtCompound queenNbt = queen.getStationNbt();
+
+        bee.getStationNbt().putInt("BreedTime", queenNbt.getInt("BreedTime"));
+        bee.getStationNbt().putInt("BeeTicks", queenNbt.getInt("BeeTicks"));
+        bee.getStationNbt().putInt("Lifespan", queenNbt.getInt("Lifespan"));
+        bee.getStationNbt().put("PrincessGenome", queenNbt.getCompound("PrincessGenome"));
+        bee.getStationNbt().put("DroneGenome", queenNbt.getCompound("DroneGenome"));
+
+        //bee.readNbt(queen.getStationNbt());
     }
 
     @Override
     public ItemStack use(ItemStack stack, World world, PlayerEntity user) {
         user.sendMessage("BreedTime: " + stack.getStationNbt().getInt("BreedTime"));
-        user.sendMessage("MaxBreedTime: " + stack.getStationNbt().getInt("MaxBreedTime"));
+        user.sendMessage("BeeTicks: " + stack.getStationNbt().getInt("BeeTicks"));
+        user.sendMessage("Lifespan: " + stack.getStationNbt().getInt("Lifespan"));
         System.out.println("--- Princess Genome ---");
         Genome.print(stack.getStationNbt().getCompound("PrincessGenome"));
         System.out.println("--- Drone Genome ---");
@@ -82,8 +98,9 @@ public class QueenBeeItem extends BeeItem {
         droneGenome.writeNbt(droneGenomeNbt);
         nbt.put("DroneGenome", droneGenomeNbt);
 
-        nbt.putInt("BreedTime", 200);
-        nbt.putInt("MaxBreedTime", 200);
+        nbt.putInt("BreedTime", TICKS_IN_BEE_TICK);
+        nbt.putInt("BeeTicks", 0);
+        nbt.putInt("Lifespan", (int)princessGenome.getGene("Lifespan").value1);
 
         return queenStack;
     }
@@ -165,6 +182,6 @@ public class QueenBeeItem extends BeeItem {
         Genome genome = new Genome();
         genome.readNbt(stack.getStationNbt().getCompound("PrincessGenome"));
         Gene breeds = genome.getGene("Breed");
-        return new String[]{originalTooltip, "\u00A77" + names.get((short)breeds.value1) + "-" + names.get((short)breeds.value2)};
+        return new String[]{originalTooltip, getColoredBreedText(breeds)};
     }
 }

@@ -1,5 +1,14 @@
 # @ is a shorthand for the current mod id, which is baiotechbees. E.g: tile.@.redclay.name
 tile.@.apiary_block.name=Apiary
+
+item.@.honey_comb.name=Honey Comb
+item.@.dripping_comb.name=Dripping Comb
+item.@.stringy_comb.name=Stringy Comb
+
+item.@.honey_drop.name=Honey Drop
+item.@.honeydew.name=Honeydew
+item.@.propolis.name=Propolis
+
 item.@.drone_bee.name=Drone Bee
 item.@.princess_bee.name=Princess Bee
 item.@.queen_bee.name=Queen Bee
@@ -15,3 +24,23 @@ item.@.queen_bee.Meadows.name=Meadows Queen
 item.@.drone_bee.Common.name=Common Drone
 item.@.princess_bee.Common.name=Common Princess
 item.@.queen_bee.Common.name=Common Queen
+
+item.@.drone_bee.Cultivated.name=Cultivated Drone
+item.@.princess_bee.Cultivated.name=Cultivated Princess
+item.@.queen_bee.Cultivated.name=Cultivated Queen
+
+item.@.drone_bee.Noble.name=Noble Drone
+item.@.princess_bee.Noble.name=Noble Princess
+item.@.queen_bee.Noble.name=Noble Queen
+
+item.@.drone_bee.Diligent.name=Diligent Drone
+item.@.princess_bee.Diligent.name=Diligent Princess
+item.@.queen_bee.Diligent.name=Diligent Queen
+
+item.@.drone_bee.Majestic.name=Majestic Drone
+item.@.princess_bee.Majestic.name=Majestic Princess
+item.@.queen_bee.Majestic.name=Majestic Queen
+
+item.@.drone_bee.Unweary.name=Unweary Drone
+item.@.princess_bee.Unweary.name=Unweary Princess
+item.@.queen_bee.Unweary.name=Unweary Queen

@@ -1,5 +1,7 @@
 package io.github.TannerLow.baiotechbees.items;
 
+import io.github.TannerLow.baiotechbees.items.colors.BeeColors;
+import io.github.TannerLow.baiotechbees.items.util.Breed;
 import io.github.TannerLow.baiotechbees.items.util.Gene;
 import io.github.TannerLow.baiotechbees.items.util.Genome;
 import net.fabricmc.api.EnvType;
@@ -11,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import net.modificationstation.stationapi.api.client.item.CustomTooltipProvider;
 import net.modificationstation.stationapi.api.template.item.TemplateItem;
+import net.modificationstation.stationapi.api.util.Formatting;
 import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.ArrayList;
@@ -44,9 +47,14 @@ public class BeeItem extends TemplateItem implements CustomTooltipProvider {
     public List<ItemStack> getSubItems() {
         ArrayList<ItemStack> list = new ArrayList<>();
 
-        list.add(createBee(0));
-        list.add(createBee(1));
-        list.add(createBee(2));
+        list.add(createBee(Breed.Forest.id()));
+        list.add(createBee(Breed.Meadows.id()));
+        list.add(createBee(Breed.Common.id()));
+        list.add(createBee(Breed.Cultivated.id()));
+        list.add(createBee(Breed.Noble.id()));
+        list.add(createBee(Breed.Majestic.id()));
+        list.add(createBee(Breed.Diligent.id()));
+        list.add(createBee(Breed.Unweary.id()));
 
         return list;
     }
@@ -61,7 +69,6 @@ public class BeeItem extends TemplateItem implements CustomTooltipProvider {
         NbtCompound nbt = bee.getStationNbt();
 
         Short beeBreedId = (short)bee.getDamage();
-        System.out.println("copy of genom for bee id: " + beeBreedId);
         Genome genome = BASE_GENOMES.get(beeBreedId);
         genome = genome.copy();
 
@@ -80,26 +87,36 @@ public class BeeItem extends TemplateItem implements CustomTooltipProvider {
         return super.use(stack, world, user);
     }
 
-    public static Genome createGenome(short breedId, byte fertility) {
+    public static Genome createGenome(Breed breed) {
+        return createGenome(breed.id(), breed.fertility(), breed.lifespan(), breed.speed());
+    }
+
+    // For creation of genomes for which a Breed enum doesn't exist
+    public static Genome createGenome(short breedId, byte fertility, int lifespan, double speed) {
         Genome genome = new Genome();
         genome.genes.add(new Gene("Breed", Gene.Type.SHORT, breedId, breedId));
         genome.genes.add(new Gene("Fertility", Gene.Type.BYTE, fertility, fertility));
+        genome.genes.add(new Gene("Lifespan", Gene.Type.INT, lifespan, lifespan));
+        genome.genes.add(new Gene("Speed", Gene.Type.DOUBLE, speed, speed));
         return genome;
     }
 
+    public static void registerBreed(Breed breed) {
+        registerBreed(breed.name(), breed.id());
+    }
+
+    // For registration of breeds for which a Breed enum doesn't exist
     public static void registerBreed(String breedName, short breedId) {
         names.add(breedName);
         breedIds.put(breedName, breedId);
     }
 
-    static {
-        BASE_GENOMES.put((short)0, createGenome((short) 0, (byte) 2));
-        BASE_GENOMES.put((short)1, createGenome((short) 1, (byte) 2));
-        BASE_GENOMES.put((short)2, createGenome((short) 2, (byte) 2));
-
-        registerBreed("Forest", (short)0);
-        registerBreed("Meadows", (short)1);
-        registerBreed("Common", (short)2);
+    public static String getColoredBreedText(Gene breedGene) {
+        Formatting color1 = BeeColors.breedTextColor.get((short)breedGene.value1);
+        Formatting color2 = BeeColors.breedTextColor.get((short)breedGene.value2);
+        return color1 + names.get((short)breedGene.value1) + Formatting.WHITE +
+               " - " +
+               color2 + names.get((short)breedGene.value2);
     }
 
     @Override
@@ -107,6 +124,26 @@ public class BeeItem extends TemplateItem implements CustomTooltipProvider {
         Genome genome = new Genome();
         genome.readNbt(stack.getStationNbt());
         Gene breeds = genome.getGene("Breed");
-        return new String[]{originalTooltip, names.get((short)breeds.value1) + "-" + names.get((short)breeds.value2)};
+        return new String[]{originalTooltip, getColoredBreedText(breeds)};
+    }
+
+    static {
+        BASE_GENOMES.put(Breed.Forest.id(), createGenome(Breed.Forest));
+        BASE_GENOMES.put(Breed.Meadows.id(), createGenome(Breed.Meadows));
+        BASE_GENOMES.put(Breed.Common.id(), createGenome(Breed.Common));
+        BASE_GENOMES.put(Breed.Cultivated.id(), createGenome(Breed.Cultivated));
+        BASE_GENOMES.put(Breed.Noble.id(), createGenome(Breed.Noble));
+        BASE_GENOMES.put(Breed.Diligent.id(), createGenome(Breed.Diligent));
+        BASE_GENOMES.put(Breed.Majestic.id(), createGenome(Breed.Majestic));
+        BASE_GENOMES.put(Breed.Unweary.id(), createGenome(Breed.Unweary));
+
+        registerBreed(Breed.Forest);
+        registerBreed(Breed.Meadows);
+        registerBreed(Breed.Common);
+        registerBreed(Breed.Cultivated);
+        registerBreed(Breed.Noble);
+        registerBreed(Breed.Diligent);
+        registerBreed(Breed.Majestic);
+        registerBreed(Breed.Unweary);
     }
 }

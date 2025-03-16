@@ -26,6 +26,11 @@ public class BeeColorProvider implements ItemColorProvider {
                     case 0: return BeeColors.FOREST_OUTLINE;
                     case 1: return BeeColors.MEADOWS_OUTLINE;
                     case 2: return BeeColors.COMMON_OUTLINE;
+                    case 3: return BeeColors.CULTIVATED_OUTLINE;
+                    case 4: return BeeColors.NOBLE_OUTLINE;
+                    case 5: return BeeColors.DILIGENT_OUTLINE;
+                    case 6: return BeeColors.MAJESTIC_OUTLINE;
+                    case 7: return BeeColors.UNWEARY_OUTLINE;
                 }
             }
         } else if (index == 1) {
