@@ -1,7 +1,6 @@
 package io.github.TannerLow.baiotechbees.blocks.entities;
 
 import io.github.TannerLow.baiotechbees.events.ItemListener;
-import io.github.TannerLow.baiotechbees.items.BeeFrameItem;
 import io.github.TannerLow.baiotechbees.items.QueenBeeItem;
 import io.github.TannerLow.baiotechbees.items.util.BeeProduct;
 import io.github.TannerLow.baiotechbees.items.util.BeeProductTable;
@@ -14,9 +13,13 @@ import net.minecraft.nbt.NbtList;
 import java.util.HashMap;
 import java.util.Map;
 
+public class BeeHouseBlockEntity extends BeeBreedingBlockEntity {
+    public final double PRODUCTION_MODIFIER = 0.25;
+    public final int LIFESPAN_MODIFIER = 3;
 
-public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
-    public final double PRODUCTION_MODIFIER = 0.1;
+    public BeeHouseBlockEntity() {
+        inventory = new ItemStack[9];
+    }
 
     @Override
     public ItemStack removeStack(int slot, int amount) {
@@ -34,10 +37,6 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
                     beeTicks = 0;
                     lifespan = 0;
                     breedTime = 0;
-                }
-
-                if(9 <= slot && slot < 12) {
-                    frameProductionModifier /= ((BeeFrameItem)itemStack.getItem()).productionModifier;
                 }
 
                 this.inventory[slot] = null;
@@ -77,21 +76,11 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
                 }
             }
 
-            // frame slots, FrameSlot object should do input validation for us
-            if(9 <= slot && slot < 12) {
-                if(stack != null) {
-                    frameProductionModifier *= ((BeeFrameItem) stack.getItem()).productionModifier;
-
-                    markDirty();
-                    return;
-                }
-            }
-
             if(inventory[0] != null && inventory[0].getItem() instanceof QueenBeeItem) {
                 NbtCompound nbt = inventory[0].getStationNbt();
                 breedTime = nbt.getInt("BreedTime");
                 beeTicks = nbt.getInt("BeeTicks");
-                lifespan = nbt.getInt("Lifespan");
+                lifespan = nbt.getInt("Lifespan") * LIFESPAN_MODIFIER;
 
                 NbtCompound princessGenomeNbt = nbt.getCompound("PrincessGenome");
                 Genome princessGenome = new Genome();
@@ -145,22 +134,12 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
                 beeTicks++;
                 breedTime = QueenBeeItem.TICKS_IN_BEE_TICK;
 
-                for(int i = 9; i < 12; i++) {
-                    ItemStack frame = inventory[i];
-                    if (frame != null) {
-                        frame.damage(1, null);
-                        if(frame.getDamage() == frame.getMaxDamage()) {
-                            removeStack(i, 1);
-                        }
-                    }
-                }
-
                 // attempt to spawn products
                 for(Map.Entry<ItemStack, Integer> entry : potentialProducts.entrySet()) {
                     ItemStack itemStack = entry.getKey();
                     int chance = entry.getValue();
 
-                    double productProbability = speed * PRODUCTION_MODIFIER * frameProductionModifier * chance / 100.0;
+                    double productProbability = speed * PRODUCTION_MODIFIER * chance / 100.0;
                     while(productProbability > 0) {
                         if(QueenBeeItem.RNG.nextDouble() < productProbability) {
                             outputBuffer.add(itemStack.copy());
@@ -182,7 +161,7 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
 
     @Override
     public String getName() {
-        return "Apiary";
+        return "BeeHouse";
     }
 
     @Override
@@ -213,11 +192,11 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
             potentialProducts.put(itemStack, chance);
         }
 
-        frameProductionModifier = nbt.getDouble("FrameProductionModifier");
+        //frameProductionModifier = nbt.getDouble("FrameProductionModifier");
         speed = nbt.getDouble("Speed");
         breedTime = nbt.getInt("BreedTime");
         beeTicks = nbt.getInt("BeeTicks");
-        lifespan = nbt.getInt("Lifespan");
+        lifespan = nbt.getInt("Lifespan") * LIFESPAN_MODIFIER;
     }
 
     @Override
@@ -225,7 +204,7 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
         super.writeNbt(nbt);
 
         NbtList slotsNbt = new NbtList();
-        for (int i = 0; i < this.inventory.length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (this.inventory[i] != null) {
                 NbtCompound slotNbt = new NbtCompound();
                 slotNbt.putByte("Slot", (byte) i);
@@ -259,7 +238,7 @@ public class ApiaryBlockEntity extends BeeBreedingBlockEntity {
         nbt.put("Items", slotsNbt);
         nbt.put("PotentialProducts", potentialProductsNbt);
         nbt.putDouble("Speed", speed);
-        nbt.putDouble("FrameProductionModifier", frameProductionModifier);
+        //nbt.putDouble("FrameProductionModifier", frameProductionModifier);
         nbt.putInt("BreedTime", breedTime);
         nbt.putInt("BeeTicks", beeTicks);
         nbt.putInt("Lifespan", lifespan);

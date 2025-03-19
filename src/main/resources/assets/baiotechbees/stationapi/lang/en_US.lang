@@ -1,5 +1,10 @@
 # @ is a shorthand for the current mod id, which is baiotechbees. E.g: tile.@.redclay.name
 tile.@.apiary_block.name=Apiary
+tile.@.bee_house_block.name=Bee House
+
+item.@.untreated_frame.name=Untreated Frame
+item.@.impregnated_frame.name=Impregnated Frame
+item.@.proven_frame.name=Proven Frame
 
 item.@.honey_comb.name=Honey Comb
 item.@.dripping_comb.name=Dripping Comb

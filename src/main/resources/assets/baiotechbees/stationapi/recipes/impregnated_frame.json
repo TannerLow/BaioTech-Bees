@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "fff",
+    "fwf",
+    "fff"
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:oak_fence"
+    },
+    "w": {
+      "item": "minecraft:wool"
+    }
+  },
+  "result": {
+    "item": "baiotechbees:impregnated_frame",
+    "count": 1
+  }
+}

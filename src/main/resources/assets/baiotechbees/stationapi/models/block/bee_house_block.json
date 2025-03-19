@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "baiotechbees:block/beehouse.4",
+    "down": "baiotechbees:block/beehouse.0",
+    "up": "baiotechbees:block/beehouse.1",
+    "north": "baiotechbees:block/beehouse.4",
+    "east": "baiotechbees:block/beehouse.2",
+    "south": "baiotechbees:block/beehouse.4",
+    "west": "baiotechbees:block/beehouse.2"
+  }
+}

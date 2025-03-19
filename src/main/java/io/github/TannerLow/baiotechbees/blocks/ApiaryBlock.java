@@ -17,13 +17,10 @@ import net.modificationstation.stationapi.api.template.block.TemplateBlockWithEn
 import net.modificationstation.stationapi.api.util.Identifier;
 import net.modificationstation.stationapi.api.util.math.Direction;
 
-public class ApiaryBlock extends TemplateBlockWithEntity {
-    public static final DirectionProperty FACING = DirectionProperty.of(
-            "facing", new Direction[]{Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH}
-    );
+public class ApiaryBlock extends BeeBreedingBlock {
 
     public ApiaryBlock(Identifier identifier) {
-        super(identifier, Material.WOOD);
+        super(identifier);
     }
 
     @Override
@@ -40,17 +37,5 @@ public class ApiaryBlock extends TemplateBlockWithEntity {
             ((ClientPlayerEntity)player).minecraft.setScreen(new ApiaryScreen(player.inventory, entity));
             return true;
         }
-    }
-
-    @Override
-    public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-        super.appendProperties(builder);
-    }
-
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext context) {
-        //System.out.println(context.getHorizontalPlayerFacing().getOpposite().name());
-        return getDefaultState().with(FACING, context.getHorizontalPlayerFacing().getOpposite());
     }
 }

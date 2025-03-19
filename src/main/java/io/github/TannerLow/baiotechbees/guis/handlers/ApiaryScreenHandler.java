@@ -2,6 +2,7 @@ package io.github.TannerLow.baiotechbees.guis.handlers;
 
 import io.github.TannerLow.baiotechbees.blocks.entities.ApiaryBlockEntity;
 import io.github.TannerLow.baiotechbees.guis.slots.BeeSlot;
+import io.github.TannerLow.baiotechbees.guis.slots.FrameSlot;
 import io.github.TannerLow.baiotechbees.guis.slots.OutputSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -29,9 +30,9 @@ public class ApiaryScreenHandler extends ScreenHandler {
         this.addSlot(new OutputSlot(apiaryBlockEntity, 8, 95, 65));
 
         // frames
-        this.addSlot(new Slot(apiaryBlockEntity, 9, 66, 23));
-        this.addSlot(new Slot(apiaryBlockEntity, 10, 66, 52));
-        this.addSlot(new Slot(apiaryBlockEntity, 11, 66, 81));
+        this.addSlot(new FrameSlot(apiaryBlockEntity, 9, 66, 23));
+        this.addSlot(new FrameSlot(apiaryBlockEntity, 10, 66, 52));
+        this.addSlot(new FrameSlot(apiaryBlockEntity, 11, 66, 81));
 
         // Player inventory slots
         for (int row = 0; row < 3; row++) {
